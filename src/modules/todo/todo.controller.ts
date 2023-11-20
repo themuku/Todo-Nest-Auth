@@ -6,28 +6,29 @@ import {
   Param,
   Patch,
   Post,
-  Req,
-  Res,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
-import { CreateTodoDto } from './dto/todo-dto';
+import { CreateTodoDto } from './dto/create-todo.dto';
 import { Cookies } from 'src/decorators/CookiesDecorator';
+import { UpdateTodoDto } from './dto/update-todo.dto';
 
 @Controller('todo')
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
   @Get()
-  findAll() {
-    return this.todoService.findAll();
+  findAll(@Query('id') id: string) {
+    return this.todoService.findAll(id);
   }
 
-  // @Post()
-  // create(@Body('title') title: string) {
-  //   return this.todoService.create(title);
-  // }
+  @Post()
+  create(@Body(ValidationPipe) createTodoDto: CreateTodoDto) {
+    return this.todoService.create(createTodoDto);
+  }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() todo: CreateTodoDto) {
+  update(@Param('id') id: string, @Body(ValidationPipe) todo: UpdateTodoDto) {
     return this.todoService.update(id, todo);
   }
 
