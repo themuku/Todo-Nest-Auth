@@ -8,16 +8,18 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
+import { TokenService } from '../token/token.service';
+import { LoginResponseDto } from './dto/login-response.dto';
+import { RegisterResponseDto } from './dto/register-response.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
   ) {}
 
-  async register(dto: RegisterUserDto) {
+  async register(dto: RegisterUserDto): Promise<RegisterResponseDto> {
     if (!dto.email && !dto.password && !dto.username) {
       throw new BadRequestException('All field are required');
     }
@@ -50,13 +52,16 @@ export class AuthService {
       },
     });
 
-    // const accessToken = await this.jwtService.sign({});
-    const accessToken = null;
+    const user = {
+      username: newUser.username,
+      email: newUser.email,
+      id: newUser.id,
+    };
 
-    return { ...newUser, accessToken };
+    return user;
   }
 
-  async login(dto: LoginUserDto) {
+  async login(dto: LoginUserDto): Promise<LoginResponseDto> {
     if (!dto.password) {
       throw new BadRequestException('Password is required');
     }
@@ -75,11 +80,13 @@ export class AuthService {
         throw new ForbiddenException('Username or password is not valid');
       }
 
+      const accessToken = await this.tokenService.generateJwtToken(user.id);
+
       return {
         username: user.username,
         email: user.email,
         id: user.id,
-        accessToken: null,
+        accessToken,
       };
     } else if (dto.email && !dto.username) {
       const user = await this.prisma.user.findUnique({
@@ -95,11 +102,13 @@ export class AuthService {
         throw new ForbiddenException('Username or password is not valid');
       }
 
+      const accessToken = await this.tokenService.generateJwtToken(user.id);
+
       return {
         username: user.username,
         email: user.email,
         id: user.id,
-        accessToken: null,
+        accessToken,
       };
     } else {
       throw new BadRequestException('All fields are required');

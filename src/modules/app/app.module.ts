@@ -5,6 +5,7 @@ import { TodoModule } from '../todo/todo.module';
 import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import configurations from '../../configurations';
+import { TokenModule } from '../token/token.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import configurations from '../../configurations';
     }),
     TodoModule,
     AuthModule,
+    TokenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,8 +14,6 @@ export class TodoService {
   async findAll(id: string) {
     const todos = await this.prisma.todo.findMany({ where: { userId: id } });
 
-    console.log(id);
-
     if (!todos.length) {
       throw new NotFoundException('Todos not found');
     }

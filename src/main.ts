@@ -1,14 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
-import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cookieParser());
-
   app.useGlobalPipes(new ValidationPipe());
 
   // Getting port from configService
